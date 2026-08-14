@@ -2,9 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#163b2b">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
   <title>SMHG Church Care</title>
+
+  <!-- App colors -->
+  <meta
+    name="theme-color"
+    content="#163b2b"
+  >
+
+  <!-- PWA manifest: Android + modern browsers -->
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <!-- iPhone / iPad Home Screen -->
+  <link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="apple-touch-icon.png"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="SMHG Church Care"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <!-- General mobile web-app hint -->
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
 
   <style>
     :root {
@@ -14,6 +58,8 @@
        * Set it to 0px if your deployment does not show the notice.
        */
       --apps-script-footer-crop: 36px;
+
+      --app-background: #f7f6f1;
     }
 
     html,
@@ -21,25 +67,46 @@
       width: 100%;
       height: 100%;
       margin: 0;
+      padding: 0;
       overflow: hidden;
-      background: #f7f6f1;
+      background: var(--app-background);
+    }
+
+    body {
+      /*
+       * Helps the standalone app account for devices
+       * with notches and rounded screen areas.
+       */
+      min-height: 100vh;
+      min-height: 100dvh;
     }
 
     .app-viewport {
       position: fixed;
       inset: 0;
+
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+
       overflow: hidden;
-      background: #f7f6f1;
+      background: var(--app-background);
     }
 
     #smhg-app {
       position: absolute;
       inset: 0 auto auto 0;
+
       width: 100%;
-      height: calc(100% + var(--apps-script-footer-crop));
+
+      height: calc(
+        100% + var(--apps-script-footer-crop)
+      );
+
       border: 0;
       display: block;
-      background: #f7f6f1;
+
+      background: var(--app-background);
     }
   </style>
 </head>

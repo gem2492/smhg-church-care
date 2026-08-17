@@ -10,19 +10,16 @@
 
   <title>SMHG Church Care</title>
 
-  <!-- App colors -->
   <meta
     name="theme-color"
     content="#163b2b"
   >
 
-  <!-- PWA manifest: Android + modern browsers -->
   <link
     rel="manifest"
     href="manifest.json"
   >
 
-  <!-- iPhone / iPad Home Screen -->
   <link
     rel="apple-touch-icon"
     sizes="180x180"
@@ -44,7 +41,6 @@
     content="default"
   >
 
-  <!-- General mobile web-app hint -->
   <meta
     name="mobile-web-app-capable"
     content="yes"
@@ -53,13 +49,17 @@
   <style>
     :root {
       /*
-       * Apps Script may show its own notice/footer at the bottom.
-       * Increase or decrease this value if the notice is not fully hidden.
-       * Set it to 0px if your deployment does not show the notice.
+       * Keep this at zero. The viewport itself is now measured instead of
+       * hiding an assumed footer height.
        */
       --apps-script-footer-crop: 0px;
-
+      --app-visible-height: 100vh;
+      --app-visible-top: 0px;
       --app-background: #f7f6f1;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     html,
@@ -69,43 +69,29 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
+      overscroll-behavior: none;
       background: var(--app-background);
-    }
-
-    body {
-      /*
-       * Helps the standalone app account for devices
-       * with notches and rounded screen areas.
-       */
-      min-height: 100vh;
-      min-height: 100dvh;
     }
 
     .app-viewport {
       position: fixed;
-      inset: 0;
-
+      top: var(--app-visible-top);
+      right: 0;
+      left: 0;
       width: 100%;
-      height: 100%;
-      height: 100dvh;
-
+      height: var(--app-visible-height);
       overflow: hidden;
       background: var(--app-background);
     }
 
     #smhg-app {
       position: absolute;
-      inset: 0 auto auto 0;
-
+      top: 0;
+      left: 0;
       width: 100%;
-
-      height: calc(
-        100% + var(--apps-script-footer-crop)
-      );
-
+      height: calc(100% + var(--apps-script-footer-crop));
       border: 0;
       display: block;
-
       background: var(--app-background);
     }
   </style>
@@ -121,5 +107,52 @@
       allow="clipboard-read; clipboard-write"
     ></iframe>
   </main>
+
+  <script>
+    const root = document.documentElement;
+    let viewportUpdateFrame = 0;
+
+    function updateVisibleViewport() {
+      cancelAnimationFrame(viewportUpdateFrame);
+
+      viewportUpdateFrame = requestAnimationFrame(() => {
+        const viewport = window.visualViewport;
+        const measuredHeight = viewport
+          ? viewport.height
+          : document.documentElement.clientHeight || window.innerHeight;
+        const measuredTop = viewport ? viewport.offsetTop : 0;
+
+        root.style.setProperty(
+          '--app-visible-height',
+          `${Math.max(1, Math.floor(measuredHeight))}px`
+        );
+
+        root.style.setProperty(
+          '--app-visible-top',
+          `${Math.max(0, Math.floor(measuredTop))}px`
+        );
+      });
+    }
+
+    updateVisibleViewport();
+
+    window.addEventListener('resize', updateVisibleViewport, { passive: true });
+    window.addEventListener('orientationchange', updateVisibleViewport, { passive: true });
+    window.addEventListener('pageshow', updateVisibleViewport, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) updateVisibleViewport();
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateVisibleViewport, { passive: true });
+      window.visualViewport.addEventListener('scroll', updateVisibleViewport, { passive: true });
+    }
+
+    /* Android standalone mode can settle its final status-bar size after load. */
+    window.setTimeout(updateVisibleViewport, 100);
+    window.setTimeout(updateVisibleViewport, 500);
+    window.setTimeout(updateVisibleViewport, 1500);
+  </script>
 </body>
 </html>
